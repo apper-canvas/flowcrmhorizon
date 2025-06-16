@@ -1,68 +1,233 @@
-import leadsData from '../mockData/leads.json';
-
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-let leads = [...leadsData];
+import { toast } from 'react-toastify';
 
 const leadService = {
   async getAll() {
-    await delay(300);
-    return [...leads];
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      const params = {
+        Fields: ['Name', 'title', 'value', 'stage', 'contact_id', 'company_id', 'probability', 'expected_close_date', 'created_at']
+      };
+
+      const response = await apperClient.fetchRecords('lead', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching leads:", error);
+      throw error;
+    }
   },
 
   async getById(id) {
-    await delay(200);
-    const lead = leads.find(l => l.Id === parseInt(id, 10));
-    if (!lead) {
-      throw new Error('Lead not found');
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      const params = {
+        fields: ['Name', 'title', 'value', 'stage', 'contact_id', 'company_id', 'probability', 'expected_close_date', 'created_at']
+      };
+
+      const response = await apperClient.getRecordById('lead', parseInt(id, 10), params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching lead with ID ${id}:`, error);
+      throw error;
     }
-    return { ...lead };
   },
 
   async create(leadData) {
-    await delay(400);
-    const maxId = leads.length > 0 ? Math.max(...leads.map(l => l.Id)) : 0;
-    const newLead = {
-      ...leadData,
-      Id: maxId + 1,
-      createdAt: new Date().toISOString()
-    };
-    leads.push(newLead);
-    return { ...newLead };
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      const params = {
+        records: [{
+          Name: leadData.title,
+          title: leadData.title,
+          value: leadData.value,
+          stage: leadData.stage,
+          contact_id: leadData.contactId,
+          company_id: leadData.companyId,
+          probability: leadData.probability,
+          expected_close_date: leadData.expectedCloseDate,
+          created_at: new Date().toISOString()
+        }]
+      };
+
+      const response = await apperClient.createRecord('lead', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const successfulRecords = response.results.filter(result => result.success);
+        const failedRecords = response.results.filter(result => !result.success);
+        
+        if (failedRecords.length > 0) {
+          console.error(`Failed to create ${failedRecords.length} records:${JSON.stringify(failedRecords)}`);
+          
+          failedRecords.forEach(record => {
+            record.errors?.forEach(error => {
+              toast.error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        return successfulRecords.length > 0 ? successfulRecords[0].data : null;
+      }
+    } catch (error) {
+      console.error("Error creating lead:", error);
+      throw error;
+    }
   },
 
   async update(id, leadData) {
-    await delay(350);
-    const index = leads.findIndex(l => l.Id === parseInt(id, 10));
-    if (index === -1) {
-      throw new Error('Lead not found');
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      const params = {
+        records: [{
+          Id: parseInt(id, 10),
+          Name: leadData.title,
+          title: leadData.title,
+          value: leadData.value,
+          stage: leadData.stage,
+          contact_id: leadData.contactId,
+          company_id: leadData.companyId,
+          probability: leadData.probability,
+          expected_close_date: leadData.expectedCloseDate
+        }]
+      };
+
+      const response = await apperClient.updateRecord('lead', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const successfulUpdates = response.results.filter(result => result.success);
+        const failedUpdates = response.results.filter(result => !result.success);
+        
+        if (failedUpdates.length > 0) {
+          console.error(`Failed to update ${failedUpdates.length} records:${JSON.stringify(failedUpdates)}`);
+          
+          failedUpdates.forEach(record => {
+            record.errors?.forEach(error => {
+              toast.error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        return successfulUpdates.length > 0 ? successfulUpdates[0].data : null;
+      }
+    } catch (error) {
+      console.error("Error updating lead:", error);
+      throw error;
     }
-    
-    const updatedLead = {
-      ...leads[index],
-      ...leadData,
-      Id: leads[index].Id // Prevent Id modification
-    };
-    
-    leads[index] = updatedLead;
-    return { ...updatedLead };
   },
 
   async delete(id) {
-    await delay(250);
-    const index = leads.findIndex(l => l.Id === parseInt(id, 10));
-    if (index === -1) {
-      throw new Error('Lead not found');
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      const params = {
+        RecordIds: [parseInt(id, 10)]
+      };
+
+      const response = await apperClient.deleteRecord('lead', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const failedDeletions = response.results.filter(result => !result.success);
+        
+        if (failedDeletions.length > 0) {
+          console.error(`Failed to delete ${failedDeletions.length} records:${JSON.stringify(failedDeletions)}`);
+          
+          failedDeletions.forEach(record => {
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        return response.results.length > 0 && response.results[0].success;
+      }
+    } catch (error) {
+      console.error("Error deleting lead:", error);
+      throw error;
     }
-    
-    const deletedLead = { ...leads[index] };
-    leads.splice(index, 1);
-    return deletedLead;
   },
 
   async getByStage(stage) {
-    await delay(200);
-    return leads.filter(lead => lead.stage === stage).map(lead => ({ ...lead }));
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      const params = {
+        Fields: ['Name', 'title', 'value', 'stage', 'contact_id', 'company_id', 'probability', 'expected_close_date', 'created_at'],
+        where: [{
+          FieldName: 'stage',
+          Operator: 'ExactMatch',
+          Values: [stage]
+        }]
+      };
+
+      const response = await apperClient.fetchRecords('lead', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching leads by stage:", error);
+      return [];
+    }
   }
 };
 

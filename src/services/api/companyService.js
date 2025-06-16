@@ -1,63 +1,196 @@
-import companiesData from '../mockData/companies.json';
-
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-let companies = [...companiesData];
+import { toast } from 'react-toastify';
 
 const companyService = {
   async getAll() {
-    await delay(300);
-    return [...companies];
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      const params = {
+        Fields: ['Name', 'industry', 'website', 'size', 'notes', 'created_at']
+      };
+
+      const response = await apperClient.fetchRecords('company', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+      throw error;
+    }
   },
 
   async getById(id) {
-    await delay(200);
-    const company = companies.find(c => c.Id === parseInt(id, 10));
-    if (!company) {
-      throw new Error('Company not found');
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      const params = {
+        fields: ['Name', 'industry', 'website', 'size', 'notes', 'created_at']
+      };
+
+      const response = await apperClient.getRecordById('company', parseInt(id, 10), params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching company with ID ${id}:`, error);
+      throw error;
     }
-    return { ...company };
   },
 
   async create(companyData) {
-    await delay(400);
-    const maxId = companies.length > 0 ? Math.max(...companies.map(c => c.Id)) : 0;
-    const newCompany = {
-      ...companyData,
-      Id: maxId + 1,
-      createdAt: new Date().toISOString()
-    };
-    companies.push(newCompany);
-    return { ...newCompany };
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      const params = {
+        records: [{
+          Name: companyData.name,
+          industry: companyData.industry,
+          website: companyData.website,
+          size: companyData.size,
+          notes: companyData.notes,
+          created_at: new Date().toISOString()
+        }]
+      };
+
+      const response = await apperClient.createRecord('company', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const successfulRecords = response.results.filter(result => result.success);
+        const failedRecords = response.results.filter(result => !result.success);
+        
+        if (failedRecords.length > 0) {
+          console.error(`Failed to create ${failedRecords.length} records:${JSON.stringify(failedRecords)}`);
+          
+          failedRecords.forEach(record => {
+            record.errors?.forEach(error => {
+              toast.error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        return successfulRecords.length > 0 ? successfulRecords[0].data : null;
+      }
+    } catch (error) {
+      console.error("Error creating company:", error);
+      throw error;
+    }
   },
 
   async update(id, companyData) {
-    await delay(350);
-    const index = companies.findIndex(c => c.Id === parseInt(id, 10));
-    if (index === -1) {
-      throw new Error('Company not found');
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      const params = {
+        records: [{
+          Id: parseInt(id, 10),
+          Name: companyData.name,
+          industry: companyData.industry,
+          website: companyData.website,
+          size: companyData.size,
+          notes: companyData.notes
+        }]
+      };
+
+      const response = await apperClient.updateRecord('company', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const successfulUpdates = response.results.filter(result => result.success);
+        const failedUpdates = response.results.filter(result => !result.success);
+        
+        if (failedUpdates.length > 0) {
+          console.error(`Failed to update ${failedUpdates.length} records:${JSON.stringify(failedUpdates)}`);
+          
+          failedUpdates.forEach(record => {
+            record.errors?.forEach(error => {
+              toast.error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        return successfulUpdates.length > 0 ? successfulUpdates[0].data : null;
+      }
+    } catch (error) {
+      console.error("Error updating company:", error);
+      throw error;
     }
-    
-    const updatedCompany = {
-      ...companies[index],
-      ...companyData,
-      Id: companies[index].Id // Prevent Id modification
-    };
-    
-    companies[index] = updatedCompany;
-    return { ...updatedCompany };
   },
 
   async delete(id) {
-    await delay(250);
-    const index = companies.findIndex(c => c.Id === parseInt(id, 10));
-    if (index === -1) {
-      throw new Error('Company not found');
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      const params = {
+        RecordIds: [parseInt(id, 10)]
+      };
+
+      const response = await apperClient.deleteRecord('company', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const failedDeletions = response.results.filter(result => !result.success);
+        
+        if (failedDeletions.length > 0) {
+          console.error(`Failed to delete ${failedDeletions.length} records:${JSON.stringify(failedDeletions)}`);
+          
+          failedDeletions.forEach(record => {
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        return response.results.length > 0 && response.results[0].success;
+      }
+    } catch (error) {
+      console.error("Error deleting company:", error);
+      throw error;
     }
-    
-    const deletedCompany = { ...companies[index] };
-    companies.splice(index, 1);
-    return deletedCompany;
   }
 };
 

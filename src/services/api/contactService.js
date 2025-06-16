@@ -1,75 +1,259 @@
-import contactsData from '../mockData/contacts.json';
-
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-let contacts = [...contactsData];
+import { toast } from 'react-toastify';
 
 const contactService = {
   async getAll() {
-    await delay(300);
-    return [...contacts];
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      const params = {
+        Fields: ['Name', 'first_name', 'last_name', 'email', 'phone', 'position', 'notes', 'created_at', 'updated_at', 'company_id']
+      };
+
+      const response = await apperClient.fetchRecords('contact', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching contacts:", error);
+      throw error;
+    }
   },
 
   async getById(id) {
-    await delay(200);
-    const contact = contacts.find(c => c.Id === parseInt(id, 10));
-    if (!contact) {
-      throw new Error('Contact not found');
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      const params = {
+        fields: ['Name', 'first_name', 'last_name', 'email', 'phone', 'position', 'notes', 'created_at', 'updated_at', 'company_id']
+      };
+
+      const response = await apperClient.getRecordById('contact', parseInt(id, 10), params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching contact with ID ${id}:`, error);
+      throw error;
     }
-    return { ...contact };
   },
 
   async create(contactData) {
-    await delay(400);
-    const maxId = contacts.length > 0 ? Math.max(...contacts.map(c => c.Id)) : 0;
-    const newContact = {
-      ...contactData,
-      Id: maxId + 1,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    contacts.push(newContact);
-    return { ...newContact };
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      const params = {
+        records: [{
+          Name: `${contactData.firstName} ${contactData.lastName}`,
+          first_name: contactData.firstName,
+          last_name: contactData.lastName,
+          email: contactData.email,
+          phone: contactData.phone,
+          position: contactData.position,
+          notes: contactData.notes,
+          company_id: contactData.companyId,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }]
+      };
+
+      const response = await apperClient.createRecord('contact', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const successfulRecords = response.results.filter(result => result.success);
+        const failedRecords = response.results.filter(result => !result.success);
+        
+        if (failedRecords.length > 0) {
+          console.error(`Failed to create ${failedRecords.length} records:${JSON.stringify(failedRecords)}`);
+          
+          failedRecords.forEach(record => {
+            record.errors?.forEach(error => {
+              toast.error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        return successfulRecords.length > 0 ? successfulRecords[0].data : null;
+      }
+    } catch (error) {
+      console.error("Error creating contact:", error);
+      throw error;
+    }
   },
 
   async update(id, contactData) {
-    await delay(350);
-    const index = contacts.findIndex(c => c.Id === parseInt(id, 10));
-    if (index === -1) {
-      throw new Error('Contact not found');
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      const params = {
+        records: [{
+          Id: parseInt(id, 10),
+          Name: `${contactData.firstName} ${contactData.lastName}`,
+          first_name: contactData.firstName,
+          last_name: contactData.lastName,
+          email: contactData.email,
+          phone: contactData.phone,
+          position: contactData.position,
+          notes: contactData.notes,
+          company_id: contactData.companyId,
+          updated_at: new Date().toISOString()
+        }]
+      };
+
+      const response = await apperClient.updateRecord('contact', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const successfulUpdates = response.results.filter(result => result.success);
+        const failedUpdates = response.results.filter(result => !result.success);
+        
+        if (failedUpdates.length > 0) {
+          console.error(`Failed to update ${failedUpdates.length} records:${JSON.stringify(failedUpdates)}`);
+          
+          failedUpdates.forEach(record => {
+            record.errors?.forEach(error => {
+              toast.error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        return successfulUpdates.length > 0 ? successfulUpdates[0].data : null;
+      }
+    } catch (error) {
+      console.error("Error updating contact:", error);
+      throw error;
     }
-    
-    const updatedContact = {
-      ...contacts[index],
-      ...contactData,
-      Id: contacts[index].Id, // Prevent Id modification
-      updatedAt: new Date().toISOString()
-    };
-    
-    contacts[index] = updatedContact;
-    return { ...updatedContact };
   },
 
   async delete(id) {
-    await delay(250);
-    const index = contacts.findIndex(c => c.Id === parseInt(id, 10));
-    if (index === -1) {
-      throw new Error('Contact not found');
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      const params = {
+        RecordIds: [parseInt(id, 10)]
+      };
+
+      const response = await apperClient.deleteRecord('contact', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        throw new Error(response.message);
+      }
+
+      if (response.results) {
+        const failedDeletions = response.results.filter(result => !result.success);
+        
+        if (failedDeletions.length > 0) {
+          console.error(`Failed to delete ${failedDeletions.length} records:${JSON.stringify(failedDeletions)}`);
+          
+          failedDeletions.forEach(record => {
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        return response.results.length > 0 && response.results[0].success;
+      }
+    } catch (error) {
+      console.error("Error deleting contact:", error);
+      throw error;
     }
-    
-    const deletedContact = { ...contacts[index] };
-    contacts.splice(index, 1);
-    return deletedContact;
   },
 
   async search(query) {
-    await delay(200);
-    const lowercaseQuery = query.toLowerCase();
-    return contacts.filter(contact => 
-      contact.firstName.toLowerCase().includes(lowercaseQuery) ||
-      contact.lastName.toLowerCase().includes(lowercaseQuery) ||
-      contact.email.toLowerCase().includes(lowercaseQuery)
-    ).map(contact => ({ ...contact }));
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      const params = {
+        Fields: ['Name', 'first_name', 'last_name', 'email', 'phone', 'position', 'notes', 'created_at', 'updated_at', 'company_id'],
+        whereGroups: [{
+          operator: "OR",
+          SubGroups: [
+            {
+              conditions: [{
+                FieldName: "first_name",
+                Operator: "Contains",
+                Values: [query]
+              }],
+              operator: ""
+            },
+            {
+              conditions: [{
+                FieldName: "last_name",
+                Operator: "Contains",
+                Values: [query]
+              }],
+              operator: ""
+            },
+            {
+              conditions: [{
+                FieldName: "email",
+                Operator: "Contains",
+                Values: [query]
+              }],
+              operator: ""
+            }
+          ]
+        }]
+      };
+
+      const response = await apperClient.fetchRecords('contact', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error searching contacts:", error);
+      return [];
+    }
   }
 };
 
