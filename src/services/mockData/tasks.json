@@ -1,0 +1,57 @@
+[
+  {
+    "Id": 1,
+    "title": "Follow up with Sarah from TechCorp",
+    "description": "Send pricing proposal and schedule demo meeting for next week",
+    "dueDate": "2024-02-25T10:00:00Z",
+    "priority": "High",
+    "status": "Pending",
+    "relatedTo": "Contact",
+    "relatedId": "1",
+    "createdAt": "2024-02-20T09:30:00Z"
+  },
+  {
+    "Id": 2,
+    "title": "Prepare presentation for Innovate Startup",
+    "description": "Create customized demo focusing on scalability features",
+    "dueDate": "2024-02-26T14:00:00Z",
+    "priority": "High",
+    "status": "In Progress",
+    "relatedTo": "Lead",
+    "relatedId": "2",
+    "createdAt": "2024-02-22T11:15:00Z"
+  },
+  {
+    "Id": 3,
+    "title": "Research Global Manufacturing requirements",
+    "description": "Understand their current processes and pain points before initial call",
+    "dueDate": "2024-02-27T16:00:00Z",
+    "priority": "Medium",
+    "status": "Pending",
+    "relatedTo": "Company",
+    "relatedId": "3",
+    "createdAt": "2024-02-21T13:45:00Z"
+  },
+  {
+    "Id": 4,
+    "title": "Send contract to Creative Design Studio",
+    "description": "Finalize terms and send signed contract for design tool integration project",
+    "dueDate": "2024-02-28T12:00:00Z",
+    "priority": "Medium",
+    "status": "Completed",
+    "relatedTo": "Lead",
+    "relatedId": "4",
+    "createdAt": "2024-02-18T15:20:00Z"
+  },
+  {
+    "Id": 5,
+    "title": "Schedule quarterly review with RetailPlus",
+    "description": "Set up meeting to discuss analytics platform implementation progress",
+    "dueDate": "3/1/2024 9:00:00 AMZ",
+    "priority": "Low",
+    "status": "Pending",
+    "relatedTo": "Contact",
+    "relatedId": "5",
+    "createdAt": "2024-02-19T10:30:00Z"
+  }
+]

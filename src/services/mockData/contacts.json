@@ -1,0 +1,62 @@
+[
+  {
+    "Id": 1,
+    "firstName": "Sarah",
+    "lastName": "Johnson",
+    "email": "sarah.johnson@techcorp.com",
+    "phone": "+1 (555) 123-4567",
+    "companyId": 1,
+    "position": "Marketing Director",
+    "notes": "Key decision maker for marketing technology purchases. Prefers email communication.",
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-02-10T14:20:00Z"
+  },
+  {
+    "Id": 2,
+    "firstName": "Michael",
+    "lastName": "Chen",
+    "email": "m.chen@innovatestart.com",
+    "phone": "+1 (555) 987-6543",
+    "companyId": 2,
+    "position": "CEO",
+    "notes": "Founder of tech startup. Very interested in scalable solutions. Busy schedule, prefers brief meetings.",
+    "createdAt": "2024-01-20T09:15:00Z",
+    "updatedAt": "2024-02-08T16:45:00Z"
+  },
+  {
+    "Id": 3,
+    "firstName": "Emily",
+    "lastName": "Rodriguez",
+    "email": "emily.r@globalmanuf.com",
+    "phone": "+1 (555) 456-7890",
+    "companyId": 3,
+    "position": "Operations Manager",
+    "notes": "Responsible for operational efficiency improvements. Looking for automation solutions.",
+    "createdAt": "2024-01-25T11:00:00Z",
+    "updatedAt": "2024-02-12T13:30:00Z"
+  },
+  {
+    "Id": 4,
+    "firstName": "David",
+    "lastName": "Kim",
+    "email": "david.kim@designstudio.co",
+    "phone": "+1 (555) 321-9876",
+    "companyId": 4,
+    "position": "Creative Director",
+    "notes": "Values aesthetics and user experience. Creative professional with attention to detail.",
+    "createdAt": "2024-02-01T08:45:00Z",
+    "updatedAt": "2024-02-15T10:15:00Z"
+  },
+  {
+    "Id": 5,
+    "firstName": "Jessica",
+    "lastName": "Taylor",
+    "email": "j.taylor@retailplus.com",
+    "phone": "+1 (555) 654-3210",
+    "companyId": 5,
+    "position": "VP of Sales",
+    "notes": "Experienced sales leader. Interested in tools that can improve team productivity and customer engagement.",
+    "createdAt": "2024-02-05T15:20:00Z",
+    "updatedAt": "2024-02-18T09:10:00Z"
+  }
+]

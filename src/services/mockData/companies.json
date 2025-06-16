@@ -1,0 +1,47 @@
+[
+  {
+    "Id": 1,
+    "name": "TechCorp Solutions",
+    "industry": "Technology",
+    "website": "https://techcorp.com",
+    "size": "Medium (50-200)",
+    "notes": "B2B technology company specializing in enterprise software solutions. Strong growth trajectory.",
+    "createdAt": "2024-01-10T12:00:00Z"
+  },
+  {
+    "Id": 2,
+    "name": "Innovate Startup",
+    "industry": "Software",
+    "website": "https://innovatestart.com",
+    "size": "Small (1-50)",
+    "notes": "Early-stage startup in the fintech space. Looking for scalable infrastructure solutions.",
+    "createdAt": "2024-01-18T14:30:00Z"
+  },
+  {
+    "Id": 3,
+    "name": "Global Manufacturing Inc",
+    "industry": "Manufacturing",
+    "website": "https://globalmanuf.com",
+    "size": "Large (200+)",
+    "notes": "Established manufacturing company seeking digital transformation and process optimization.",
+    "createdAt": "2024-01-22T09:45:00Z"
+  },
+  {
+    "Id": 4,
+    "name": "Creative Design Studio",
+    "industry": "Design",
+    "website": "https://designstudio.co",
+    "size": "Small (1-50)",
+    "notes": "Boutique design agency working with premium brands. Values quality over quantity.",
+    "createdAt": "2024-01-28T16:20:00Z"
+  },
+  {
+    "Id": 5,
+    "name": "RetailPlus Chain",
+    "industry": "Retail",
+    "website": "https://retailplus.com",
+    "size": "Large (200+)",
+    "notes": "Regional retail chain looking to modernize their customer experience and inventory management.",
+    "createdAt": "2024-02-02T11:15:00Z"
+  }
+]
